@@ -4,12 +4,12 @@
   "description": "A Vue.js project",
   "author": "",
   "private": true,
+  "homepage": "http://kassia1971.github.io/TaskManager",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
     "build": "node build/build.js"
   },
-  "homepage": "http://kassia1971.github.io/TaskManager"
   "dependencies": {
     "ajv": "^6.9.1",
     "axios": "^0.19.2",
