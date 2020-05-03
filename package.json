@@ -9,6 +9,7 @@
     "start": "npm run dev",
     "build": "node build/build.js"
   },
+  "homepage": "http://kassia1971.github.io/TaskManager"
   "dependencies": {
     "ajv": "^6.9.1",
     "axios": "^0.19.2",
