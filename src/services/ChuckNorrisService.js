@@ -1,8 +1,8 @@
 import http from "../http-externalCall";
-class TutorialDataService {
+
+export const ChuckNorrisService = {
   getRandom() {
       return http.get("/random");
     }
   }
 
-export default new TutorialDataService();

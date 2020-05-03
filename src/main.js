@@ -6,11 +6,11 @@ import { firestorePlugin } from 'vuefire'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import store  from './store'
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
-
-
+Vue.use(BootstrapVue)
+Vue.use(IconsPlugin)
 Vue.use(firestorePlugin)
-Vue.use(Vuex)
 
 firebase.initializeApp({
   apiKey: 'AIzaSyBS3OvT4JsvfUYHsuD3eq5pEUrBPC2R2tc',

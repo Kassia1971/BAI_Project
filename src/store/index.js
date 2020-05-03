@@ -1,29 +1,25 @@
-import Vue from 'vue'
 import Vuex from 'vuex'
+import Vue from 'vue'
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
 
 state: {
     user_id: '',
-    joke: ''
+    user_email: ''
   },
 
   mutations: {
-    setUserId (state, userId) {
-      state.user_id = userId
-    },
-    setJoke (state, joke){
-      state.joke = joke
+    setUserData (state, payload) {
+      state.user_id = payload.uid
+      state.user_email = payload.email
     }
   },
 
   actions: {
-    setUserId ({commit}, payload) {
-      commit('setUserId', payload)
-    },
-    setJoke ({commit}, payload) {
-      commit('setJoke', payload)
+    setUserData ({commit}, payload) {
+      commit('setUserData', payload)
     }
   },
 
@@ -31,8 +27,8 @@ state: {
     userId (state) {
       return state.user_id
     },
-    joke (state) {
-      return state.joke
+    userEmail (state) {
+      return state.user_email
     }
   }
 })

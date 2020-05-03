@@ -1,51 +1,98 @@
 <template>
-  <div class="login">
-    <h3>DC Comics Rebirth - Covers</h3>
-    <input
-      type="text"
-      v-model="email"
-      placeholder="Email address"
-      class="input"
-      required>
-    <br/>
-    <input
-      type="password"
-      v-model="password"
-      placeholder="Password"
-      class="input"
-      required>
-    <br/>
-    <button v-on:click="login" class="button">Enter</button>
-    <p><router-link to="/signup">
-      New Here? Create a new account
-    </router-link></p>
-
-
+  <div class="container">
+    <div class="row">
+      <div class="d-flex flex-column justify-content-center align-items-center">
+        <h2 class="text-center mb-5">BAI - Project</h2>
+        <div class="panel panel-default">
+          <div class="panel-heading mb-3">
+            <h3 class="panel-title text-center">Please sign in</h3>
+          </div>
+          <div class="panel-body">
+            <form accept-charset="UTF-8" role="form">
+              <fieldset>
+                <div class="form-group">
+                  <input
+                    type="text"
+                    v-model="email"
+                    placeholder="Email address"
+                    class="input w-100"
+                    required
+                  >
+                  <p class="error" v-if='validationEmailError'>Invalid email format!</p>
+                </div>
+                <div class="form-group">
+                  <input
+                    type="password"
+                    v-model="password"
+                    placeholder="Password"
+                    class="input w-100"
+                    required
+                  >
+                </div>
+                <input
+                  v-on:click="login"
+                  class="btn w-100 btn-md btn-success btn-block"
+                  type="submit"
+                  value="Login"
+                >
+              </fieldset>
+            </form>
+            <p class="error" v-if='serverError'>{{this.serverError}}</p>
+          </div>
+          <p class="mt-3">
+            <router-link to="/signup">New Here? Create a new account</router-link>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-  import firebase from 'firebase'
-  export default {
-    name: 'login',
-    data: function() {
-      return {
-        email: '',
-        password: ''
+import firebase from "firebase";
+import {validator} from "./../services/validator";
+
+export default {
+  name: "login",
+  data: function() {
+    return {
+      email: "",
+      password: "",
+      validationEmailError: null,
+      serverError: null
+    };
+  },
+  methods: {
+    login() {
+      const {validEmail } = validator;
+
+      if(!validEmail(this.email)){
+        this.validationEmailError = true;
+        return;
       }
-    },
-    methods: {
-      login () {
-        firebase.auth().signInWithEmailAndPassword(this.email, this.password).then((response) => {
-          this.$store.dispatch('setUserId', response.user.uid)
+
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.email, this.password)
+        .then(() => {
+          this.$router.replace('/main')
         })
-        .finally(()=>{
-          this.$router.replace('/todos')
+        .catch(err => {
+          this.serverError = err.message;
         })
-        .catch((err) => {
-          alert(err.message)
-        })
-      }
     }
   }
+};
 </script>
+
+<style>
+.d-flex {
+  width: 100%;
+  height: 100vh;
+  margin-top: -8rem;
+}
+
+.error{
+  color: red;
+}
+</style>
