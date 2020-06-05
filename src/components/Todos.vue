@@ -8,90 +8,32 @@
             <b-form-input v-model="newNote" class="addNoteInput" placeholder="Add new note"></b-form-input>
             <b-button variant="success" type="submit" class="addNoteBtn">Add New Todo</b-button>
           </div>
+            <b-form-radio-group id="radio-group-2"  class='note-group' v-model="selected" name="radio-sub-component">
+              <b-form-radio value="simple">Simple note</b-form-radio>
+              <b-form-radio value="list">List note</b-form-radio>
+              <b-form-radio value="duration">Duration note</b-form-radio>
+              <b-form-radio value="end-time">End time note</b-form-radio>
+            </b-form-radio-group>
         </form>
       </div>
       <div class="todoWrapper">
         <h4 class="text-center">Tasks To-Do:</h4>
         <article v-for="(todo, index) in todos" :key="index">
-          <div class="todoElement">
-            <div class="elementRow">
-              <span>{{index+1}}.</span>
-              <div class="elementInnerRow">
-                <p
-                  class="d-inline"
-                  v-if="!inEditModeObject[todo.id]"
-                  :class="!todo.isActive ? 'inactiveEntry' : ''"
-                >
-                  <b>{{ todo.note }}</b>
-                </p>
-                <div
-                  class="editInputWrapper"
-                  v-if="inEditModeObject[todo.id]"
-                >
-                  <b-form-input v-model="inEditModeObject[todo.id].changedNote"></b-form-input>
-                  <b-button-group class="editNoteButtonsGroup">
-                    <b-button
-                      variant="success"
-                      @click="updateNote(todo.id, inEditModeObject[todo.id].changedNote)"
-                    >
-                      <BIconFileCheck/>
-                    </b-button>
-                    <b-button
-                      variant="danger"
-                      @click="abandonChanges(todo.id)"
-                    >
-                      <BIconX/>
-                    </b-button>
-                  </b-button-group>
-                </div>
-              </div>
-              <b-button-group>
-                <b-button
-                  v-if="todo.isActive"
-                  variant="success"
-                  :disabled="inEditModeObject[todo.id] !== undefined "
-                  @click="endNote(todo.id)"
-                >
-                  <BIconCheck/>
-                </b-button>
-                <b-button
-                  v-if="!todo.isActive"
-                  variant="primary"
-                  @click="revertNote(todo.id)"
-                >
-                  <BIconReply/>
-                </b-button>
-                <b-button
-                  variant="warning"
-                  :disabled="!todo.isActive || inEditModeObject[todo.id] !== undefined "
-                  @click="switchToEditMode(index)"
-                >
-                  <BIconPencil/>
-                </b-button>
-                <b-button
-                  variant="danger"
-                  :disabled="inEditModeObject[todo.id] !== undefined "
-                  @click="deleteNote(todo.id)"
-                >
-                  <BIconTrash/>
-                </b-button>
-              </b-button-group>
-            </div>
-            <div class="timeWrapper">
-              <span>
-                Created at:
-                <b>{{todo.createdAt.toDate().toLocaleString()}}</b>
-              </span>
-              <span v-if="todo.modifiedAt">
-                Modified at:
-                <b>{{todo.modifiedAt.toDate().toLocaleString() }}</b>
-              </span>
-              <span v-if="todo.endAt">
-                Completed at:
-                <b>{{todo.endAt.toDate().toLocaleString() }}</b>
-              </span>
-            </div>
-          </div>
+          <EndTimeNote v-if="todo.type === 'end-time'"/>
+          <DurationNote v-else-if="todo.type === 'duration'"/>
+          <ListNote v-else-if="todo.type === 'list'"/>
+          <SimpleNote
+            v-else
+            :todo="todo"
+            :index="index"
+            :deleteNote="deleteNote"
+            :switchToEditMode="switchToEditMode"
+            :revertNote="revertNote"
+            :endNote="endNote"
+            :abandonChanges="abandonChanges"
+            :updateNote="updateNote"
+            :inEditModeObject="inEditModeObject"
+          />
         </article>
       </div>
     </div>
@@ -108,6 +50,11 @@ import {
   BIconX,
   BIconFileCheck
 } from "bootstrap-vue";
+
+import SimpleNote from "./note-types/SimpleNote";
+import DurationNote from "./note-types/DurationNote";
+import ListNote from "./note-types/ListNote";
+import EndTimeNote from "./note-types/EndTimeNote";
 
 export default {
   name: "Todo",
@@ -136,7 +83,11 @@ export default {
 
     addTodo() {
       db.collection(this.userId)
-        .add({ note: this.newNote, createdAt: new Date(), isActive: true })
+        .add({
+          note: this.newNote,
+          createdAt: new Date(),
+          isActive: true
+        })
         .then(res => {
           this.newNote = "";
         })
@@ -146,11 +97,14 @@ export default {
     },
 
     updateNote(id, newNote) {
-      delete this.inEditModeObject[id]
+      delete this.inEditModeObject[id];
 
       db.collection(this.userId)
         .doc(id)
-        .update({ modifiedAt: new Date(), note: newNote });
+        .update({
+          modifiedAt: new Date(),
+          note: newNote
+        });
     },
 
     deleteNote(id) {
@@ -161,29 +115,35 @@ export default {
 
     abandonChanges(id) {
       delete this.inEditModeObject[id];
-      this.inEditModeObject = {...this.inEditModeObject[id]}
+      this.inEditModeObject = { ...this.inEditModeObject[id] };
     },
 
     switchToEditMode(index) {
       this.inEditModeObject = {
         ...this.inEditModeObject,
         [this.todos[index].id]: {
-            changedNote: this.todos[index].note,
-            inEditMode: true
-          }
-      }
+          changedNote: this.todos[index].note,
+          inEditMode: true
+        }
+      };
     },
 
     endNote(id) {
       db.collection(this.userId)
         .doc(id)
-        .update({ isActive: false, endAt: new Date() });
+        .update({
+          isActive: false,
+          endAt: new Date()
+        });
     },
 
     revertNote(id) {
       db.collection(this.userId)
         .doc(id)
-        .update({ isActive: true, endAt: null });
+        .update({
+          isActive: true,
+          endAt: null
+        });
     }
   },
   components: {
@@ -192,7 +152,11 @@ export default {
     BIconCheck,
     BIconReply,
     BIconX,
-    BIconFileCheck
+    BIconFileCheck,
+    SimpleNote,
+    DurationNote,
+    ListNote,
+    EndTimeNote
   }
 };
 </script>
@@ -283,4 +247,15 @@ export default {
   margin-left: 1rem;
   max-width: 100px;
 }
+
+.note-group {
+  text-align: left;
+  width: calc(100% - 200px);
+  margin-top: 0.5rem;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
 </style>
