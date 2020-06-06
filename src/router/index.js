@@ -13,8 +13,7 @@ let router = new Router({
     {
       path: '/login',
       name: 'Login',
-      component: Login,
-      beforeEnter: isUnloggedRequired
+      component: Login
     },
     {
       path: '/signup',
@@ -30,8 +29,7 @@ let router = new Router({
     },
     {
       path: '*',
-      redirect: '/login',
-      beforeEnter: isUnloggedRequired
+      redirect: '/login'
     },
   ]
 })

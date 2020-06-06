@@ -62,6 +62,14 @@ export default {
       serverError: null
     };
   },
+
+  created: async function(){
+    const currentUser = await firebase.auth().currentUser;
+    if (currentUser) {
+      this.$router.replace('/main')
+    }
+  },
+
   methods: {
     login() {
       const {validEmail } = validator;
