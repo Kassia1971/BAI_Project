@@ -93,7 +93,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .d-flex {
   width: 100%;
   height: 100vh;

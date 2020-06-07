@@ -5,3 +5,4 @@ export const ChuckNorrisService = {
       return http.get("/random");
     }
   }
+
